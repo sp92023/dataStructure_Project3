@@ -18,31 +18,31 @@ int k = 0;
 int offset, index, tag = 0;
 vector<string> tagName;
 vector<string> indexName;
+vector<vector<string> > cache;
+vector<vector<int> > noUseCount;
+vector<string> hitOrMiss;
 
 void cal();
 void printAddr();
 string GetBinaryStringFromHexString(string sHex);
 string toHex(string s);
-vector<vector<string> > cache;
-vector<vector<int> > noUseCount;
-vector<string> hitOrMiss;
 
 int main()
 {
 	//std::cout << "Hello World!\n";
 
-	//cout << "set k-bit address:" << endl << "k = ";
-	//cin >> k;
-	//cout << "input cache data size(KB):" << endl;
-	//cin >> cacheSize;
-	//cout << endl << "input block size(byte):" << endl;
-	//cin >> block;
-	//cout << endl << "input N-way set associative:" << endl << "N = ";
-	//cin >> way;
-	k = 20;
-	cacheSize = 16;
-	block = 16;
-	way = 4;
+	cout << "set k-bit address:" << endl << "k = ";
+	cin >> k;
+	cout << "input cache data size(KB):" << endl;
+	cin >> cacheSize;
+	cout << endl << "input block size(byte):" << endl;
+	cin >> block;
+	cout << endl << "input N-way set associative:" << endl << "N = ";
+	cin >> way;
+	//k = 20;
+	//cacheSize = 16;
+	//block = 16;
+	//way = 4;
 
 	cal();
 	printAddr();
