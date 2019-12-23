@@ -100,3 +100,7 @@
 
 * void cal() // 計算tag, index, offset
 * string GetBinaryStringFromHexString() // 16進制轉2進制
+* void doLRU(vector<string> indexTemp)
+* int haveSpace(int location) // 如果cache裡面有NUL(有空間可以直接放)，return location
+* int findFirstIn(int location) // 找到最早進去的tag
+* void doFIFO(vector<string> indexTemp)
