@@ -1,4 +1,8 @@
-﻿#include <iostream>
+﻿// project3.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
+//
+
+#include "pch.h"
+#include <iostream>
 #include <math.h>
 #include <iomanip>
 #include <string>
@@ -22,19 +26,27 @@ void cal();
 void printAddr();
 string GetBinaryStringFromHexString(string sHex);
 string toHex(string s);
+void doLRU(vector<string> indexTemp);
+int haveSpace(int location);
+int findFirstIn(int location);
+void doFIFO(vector<string> indexTemp);
 
 int main()
 {
-	//std::cout << "Hello World!\n";
-
 	cout << "set k-bit address:" << endl << "k = ";
 	cin >> k;
-	cout << "input cache data size(KB):" << endl;
+	cout << endl << "input cache data size(KB):" << endl;
 	cin >> cacheSize;
 	cout << endl << "input block size(byte):" << endl;
 	cin >> block;
 	cout << endl << "input N-way set associative:" << endl << "N = ";
 	cin >> way;
+	int choose = -1;
+	do {
+		cout << endl << "choose: 1->FIFO, 2->LRU" << endl;
+		cin >> choose;
+	} while (choose != 1 && choose != 2);
+
 	//k = 20;
 	//cacheSize = 16;
 	//block = 16;
@@ -77,7 +89,7 @@ int main()
 		indexName.push_back(toHex(s));
 	}
 	for (int i = 0; i < inputContent.size(); i++) {
-		cout << "tag" << setw(3) << i << ": " << setw(7) << tagName[i] << "   " 
+		cout << "tag" << setw(3) << i << ": " << setw(7) << tagName[i] << "   "
 			<< "index" << setw(3) << i << ": " << setw(7) << indexName[i] << endl;
 	}
 	cout << endl;
@@ -103,10 +115,107 @@ int main()
 		noUseCount.push_back(count);
 	}
 
-	// do replacement
+	if (choose == 2) {
+		doLRU(indexTemp);
+	}
+	else if (choose == 1) {
+		doFIFO(indexTemp);
+	}
+
+	//for (int i = 0; i < hitOrMiss.size(); i++)
+	//	cout << hitOrMiss[i] << endl;
+	system("pause");
+}
+
+void doFIFO(vector<string> indexTemp) {
 	for (int i = 0; i < tagName.size(); i++) {
-		cout << "time:" << setw(3) << i + 1 << 
-			setw(7) << "tag:" << setw(5) << tagName[i] << 
+		cout << "time:" << setw(3) << i + 1 <<
+			setw(7) << "tag:" << setw(5) << tagName[i] <<
+			setw(9) << "index:" << setw(5) << indexName[i] << endl;
+
+		int location;
+		for (int j = 0; j < indexTemp.size(); j++) {
+			if (indexTemp[j] == indexName[i]) { // need to know which set
+				location = j;
+				break;
+			}
+		}
+
+		bool isFind = false;
+		for (int j = 0; j < cache[location].size(); j++) {
+			if (cache[location][j] == tagName[i]) { // if found, update count
+				hitOrMiss.push_back("Hit");
+				isFind = true;
+			}
+		}
+		if (isFind == false) {
+			int loca;
+			loca = haveSpace(location);
+			if (loca != -1) {
+				noUseCount[location][loca] = 0; // update count
+				cache[location][loca] = tagName[i]; // replace cache tag
+
+				for (int j = 0; j < cache[location].size(); j++) {
+					if (cache[location][j] != "NUL") {
+						noUseCount[location][j]++;
+					}
+				}
+			}
+			else if (loca == -1) { // need to replace
+				int changeLocation = findFirstIn(location);
+
+				noUseCount[location][changeLocation] = 0; // update count
+				cache[location][changeLocation] = tagName[i]; // replace cache tag
+
+				for (int k = 0; k < cache[location].size(); k++) {
+					if (cache[location][k] != "NUL") {
+						noUseCount[location][k]++;
+					}
+				}
+			}
+			hitOrMiss.push_back("Miss");
+		}
+
+		for (int j = 0; j < cache.size(); j++) {
+			for (int k = 0; k < cache[j].size(); k++) {
+				cout << indexTemp[j] << setw(7) << cache[j][k] << endl;
+			}
+			cout << "=====" << endl;
+		}
+		cout << hitOrMiss[i] << endl;
+		cout << endl << endl << endl;
+	}
+}
+
+int findFirstIn(int location) {
+	int changeLocation = 0;
+	int max = -1;
+
+	for (int j = 0; j < noUseCount[location].size(); j++) { // find max count_value to replace
+		if (noUseCount[location][j] >= max) {
+			max = noUseCount[location][j];
+			changeLocation = j;
+		}
+	}
+
+	return changeLocation;
+}
+
+int haveSpace(int location) {
+	int loca = -1;
+	for (int i = noUseCount[location].size() - 1; i >= 0; i--) {
+		if (cache[location][i] == "NUL") {
+			loca = i;
+		}
+	}
+
+	return loca;
+}
+
+void doLRU(vector<string> indexTemp) {
+	for (int i = 0; i < tagName.size(); i++) {
+		cout << "time:" << setw(3) << i + 1 <<
+			setw(7) << "tag:" << setw(5) << tagName[i] <<
 			setw(9) << "index:" << setw(5) << indexName[i] << endl;
 
 		int location;
@@ -129,7 +238,7 @@ int main()
 		if (isFind == false) {
 			int changeLocation = 0;
 			int max = -1;
-			for (int j = noUseCount[location].size()-1; j >= 0; j--) { // find max count_value to replace
+			for (int j = noUseCount[location].size() - 1; j >= 0; j--) { // find max count_value to replace
 				if (noUseCount[location][j] >= max) {
 					max = noUseCount[location][j];
 					changeLocation = j;
@@ -150,11 +259,6 @@ int main()
 		cout << hitOrMiss[i] << endl;
 		cout << endl << endl << endl;
 	}
-	// end replacement
-
-	//for (int i = 0; i < hitOrMiss.size(); i++)
-	//	cout << hitOrMiss[i] << endl;
-	system("pause");
 }
 
 void cal() {
@@ -256,3 +360,13 @@ string toHex(string s) {
 	}
 	return sReturn;
 }
+// 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
+// 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
+
+// 開始使用的秘訣: 
+//   1. 使用 [方案總管] 視窗，新增/管理檔案
+//   2. 使用 [Team Explorer] 視窗，連線到原始檔控制
+//   3. 使用 [輸出] 視窗，參閱組建輸出與其他訊息
+//   4. 使用 [錯誤清單] 視窗，檢視錯誤
+//   5. 前往 [專案] > [新增項目]，建立新的程式碼檔案，或是前往 [專案] > [新增現有項目]，將現有程式碼檔案新增至專案
+//   6. 之後要再次開啟此專案時，請前往 [檔案] > [開啟] > [專案]，然後選取 .sln 檔案
