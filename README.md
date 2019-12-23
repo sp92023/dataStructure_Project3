@@ -80,29 +80,18 @@
 ## 系統流程：
 	1. 讀擋
 	2. 讀擋完成後將資料存成以下結構
-	// 將instruction分別記錄以下結構 ex: add R1,R2,R3
-	// instFirst會記錄R1
-	// instSecond會記錄R2
-	// instThird會記錄R3
-	// instName會記錄add
-	vector<string> instFirst;
-	vector<string> instSecond;
-	vector<string> instThird;
-	vector<string> instName;
-	
-	vector<string> regName; // 紀錄每個register的名字
-	vector<int> regValue; // 紀錄每個register的值
-	vector<vector<string> > addRs;
-	vector<vector<string> > mulRs;
-	vector<string> rat;
-	string first, second, third;
-	int cycle = 0;
-	vector<string> addBuffer; // 0:RS, 1:operation, 2:result, 3:cycle, 4:tag
-	// buffer內存五個值，第一個存RAT所對應的RS，第二個存式子，第三個存執行後的結果，第四個存在第幾個cycle會write back，第五個存tag
-	vector<string> mulBuffer;
-	vector<int> ratTag;
-	vector<int> addTag;
-	vector<int> mulTag;
+		int cacheSize = 0;
+		int block = 0;
+		int way = 0;
+		int k = 0;
+		int offset, index, tag = 0;
+		vector<string> tagName;
+		vector<string> indexName;
+		vector<vector<string> > cache;
+		// 使用LRU，作法是每跑一次將未使用到的每個way做count++
+		// 並將使用過的歸零，需要replacement時找count數最大的去做取代
+		vector<vector<int> > noUseCount;
+		vector<string> hitOrMiss;
 	
 	3. 資料儲存好以後，開始執行tomasulo
 	4. 輸出結果
