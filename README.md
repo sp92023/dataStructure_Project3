@@ -104,3 +104,110 @@
 * int haveSpace(int location) // 如果cache裡面有NUL(有空間可以直接放)，return location
 * int findFirstIn(int location) // 找到最早進去的tag
 * void doFIFO(vector<string> indexTemp)
+
+#### input：
+	cout << "set k-bit address:" << endl << "k = ";
+	cin >> k;
+	cout << endl << "input cache data size(KB):" << endl;
+	cin >> cacheSize;
+	cout << endl << "input block size(byte):" << endl;
+	cin >> block;
+	cout << endl << "input N-way set associative:" << endl << "N = ";
+	cin >> way;
+	int choose = -1;
+	do {
+		cout << endl << "choose: 1->FIFO, 2->LRU" << endl;
+		cin >> choose;
+	} while (choose != 1 && choose != 2);
+	
+	cal();
+
+	一開始先設定所需要的資料
+	再利用cal()去計算出tag index offset
+
+#### 讀檔：
+	for (int i = 0; i < inputContent.size(); i++) {
+		inputContent[i] = GetBinaryStringFromHexString(inputContent[i]);
+	}
+
+	for (int i = 0; i < inputContent.size(); i++) {
+		string s = "";
+		for (int j = 0; j < tag; j++) {
+			s.push_back(inputContent[i][j]);
+		}
+		tagName.push_back(toHex(s));
+	}
+	for (int i = 0; i < inputContent.size(); i++) {
+		string s = "";
+		for (int j = tag; j < tag + index; j++) {
+			s.push_back(inputContent[i][j]);
+		}
+		indexName.push_back(toHex(s));
+	}
+	for (int i = 0; i < inputContent.size(); i++) {
+		cout << "tag" << setw(3) << i << ": " << setw(7) << tagName[i] << "   "
+			<< "index" << setw(3) << i << ": " << setw(7) << indexName[i] << endl;
+	}
+	cout << endl;
+	
+	先把讀進的檔案的值16進制轉成2進制
+	再依據剛才算出的tag index樹進行存取
+	
+#### execute：
+	if (choose == 2) {
+		doLRU(indexTemp);
+	}
+	else if (choose == 1) {
+		doFIFO(indexTemp);
+	}
+	
+	根據一開始輸入的去選擇要做哪一種cache replacement
+
+	void doLRU(vector<string> indexTemp) {
+	for (int i = 0; i < tagName.size(); i++) {
+		cout << "time:" << setw(3) << i + 1 <<
+			setw(7) << "tag:" << setw(5) << tagName[i] <<
+			setw(9) << "index:" << setw(5) << indexName[i] << endl;
+
+		int location;
+		for (int j = 0; j < indexTemp.size(); j++) {
+			if (indexTemp[j] == indexName[i]) { // need to know which set
+				location = j;
+				break;
+			}
+		}
+
+		bool isFind = false;
+		for (int j = 0; j < cache[location].size(); j++) {
+			noUseCount[location][j]++; // count++
+			if (cache[location][j] == tagName[i]) { // if found, update count
+				noUseCount[location][j] = 0;
+				hitOrMiss.push_back("Hit");
+				isFind = true;
+			}
+		}
+		if (isFind == false) {
+			int changeLocation = 0;
+			int max = -1;
+			for (int j = noUseCount[location].size() - 1; j >= 0; j--) { // find max count_value to replace
+				if (noUseCount[location][j] >= max) {
+					max = noUseCount[location][j];
+					changeLocation = j;
+				}
+			}
+
+			noUseCount[location][changeLocation] = 0; // update count
+			cache[location][changeLocation] = tagName[i]; // replace cache tag
+			hitOrMiss.push_back("Miss");
+		}
+
+		for (int j = 0; j < cache.size(); j++) {
+			for (int k = 0; k < cache[j].size(); k++) {
+				cout << indexTemp[j] << setw(7) << cache[j][k] << endl;
+			}
+			cout << "=====" << endl;
+		}
+		cout << hitOrMiss[i] << endl;
+		cout << endl << endl << endl;
+	}
+}
