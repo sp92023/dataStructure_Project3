@@ -164,50 +164,50 @@
 	根據一開始輸入的去選擇要做哪一種cache replacement
 
 	void doLRU(vector<string> indexTemp) {
-	for (int i = 0; i < tagName.size(); i++) {
-		cout << "time:" << setw(3) << i + 1 <<
-			setw(7) << "tag:" << setw(5) << tagName[i] <<
-			setw(9) << "index:" << setw(5) << indexName[i] << endl;
+		for (int i = 0; i < tagName.size(); i++) {
+			cout << "time:" << setw(3) << i + 1 <<
+				setw(7) << "tag:" << setw(5) << tagName[i] <<
+				setw(9) << "index:" << setw(5) << indexName[i] << endl;
 
-		int location;
-		for (int j = 0; j < indexTemp.size(); j++) {
-			if (indexTemp[j] == indexName[i]) { // need to know which set
-				location = j;
-				break;
-			}
-		}
-
-		bool isFind = false;
-		for (int j = 0; j < cache[location].size(); j++) {
-			noUseCount[location][j]++; // count++
-			if (cache[location][j] == tagName[i]) { // if found, update count
-				noUseCount[location][j] = 0;
-				hitOrMiss.push_back("Hit");
-				isFind = true;
-			}
-		}
-		if (isFind == false) {
-			int changeLocation = 0;
-			int max = -1;
-			for (int j = noUseCount[location].size() - 1; j >= 0; j--) { // find max count_value to replace
-				if (noUseCount[location][j] >= max) {
-					max = noUseCount[location][j];
-					changeLocation = j;
+			int location;
+			for (int j = 0; j < indexTemp.size(); j++) {
+				if (indexTemp[j] == indexName[i]) { // need to know which set
+					location = j;
+					break;
 				}
 			}
 
-			noUseCount[location][changeLocation] = 0; // update count
-			cache[location][changeLocation] = tagName[i]; // replace cache tag
-			hitOrMiss.push_back("Miss");
-		}
-
-		for (int j = 0; j < cache.size(); j++) {
-			for (int k = 0; k < cache[j].size(); k++) {
-				cout << indexTemp[j] << setw(7) << cache[j][k] << endl;
+			bool isFind = false;
+			for (int j = 0; j < cache[location].size(); j++) {
+				noUseCount[location][j]++; // count++
+				if (cache[location][j] == tagName[i]) { // if found, update count
+					noUseCount[location][j] = 0;
+					hitOrMiss.push_back("Hit");
+					isFind = true;
+				}
 			}
-			cout << "=====" << endl;
+			if (isFind == false) {
+				int changeLocation = 0;
+				int max = -1;
+				for (int j = noUseCount[location].size() - 1; j >= 0; j--) { // find max count_value to replace
+					if (noUseCount[location][j] >= max) {
+						max = noUseCount[location][j];
+						changeLocation = j;
+					}
+				}
+
+				noUseCount[location][changeLocation] = 0; // update count
+				cache[location][changeLocation] = tagName[i]; // replace cache tag
+				hitOrMiss.push_back("Miss");
+			}
+
+			for (int j = 0; j < cache.size(); j++) {
+				for (int k = 0; k < cache[j].size(); k++) {
+					cout << indexTemp[j] << setw(7) << cache[j][k] << endl;
+				}
+				cout << "=====" << endl;
+			}
+			cout << hitOrMiss[i] << endl;
+			cout << endl << endl << endl;
 		}
-		cout << hitOrMiss[i] << endl;
-		cout << endl << endl << endl;
 	}
-}
