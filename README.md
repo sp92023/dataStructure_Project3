@@ -211,3 +211,12 @@
 			cout << endl << endl << endl;
 		}
 	}
+
+	先判斷要將tag存入哪一個index裡面
+	然後去查看index裡面有沒有這筆資料
+	如果有找到這筆資料則輸出cache hit
+	並且將noUseCount做更新
+	如果沒有找到這筆資料則輸出cache miss
+	利用noUseCount去找出裡面最久沒有被使用的tag
+	並將noUseCount做更新
+	doFIFO()也是以此類推
